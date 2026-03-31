@@ -26,6 +26,7 @@ export default function DashboardPage() {
   const [courses, setCourses] = useState([]);
   const [keyword, setKeyword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     let mounted = true;
@@ -36,6 +37,12 @@ export default function DashboardPage() {
         const data = unwrapApiData(response) || [];
         if (mounted) {
           setCourses(data);
+          setErrorMessage('');
+        }
+      } catch (error) {
+        if (mounted) {
+          setCourses([]);
+          setErrorMessage(error?.response?.data?.message || 'Cannot load courses right now.');
         }
       } finally {
         if (mounted) {
@@ -96,6 +103,7 @@ export default function DashboardPage() {
       </section>
 
       {loading && <div className="loader">Loading courses...</div>}
+      {errorMessage ? <p className="error-text">{errorMessage}</p> : null}
 
       {!loading && (
         <>
