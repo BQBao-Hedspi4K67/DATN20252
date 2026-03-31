@@ -8,6 +8,8 @@ const router = express.Router();
 router.use(authenticate);
 router.use(authorizeRoles('admin'));
 
+router.get('/reports/overview', adminController.getOverviewReport);
+
 router.get('/users', adminController.listUsers);
 router.patch('/users/:userId/active', adminController.updateUserActiveStatus);
 

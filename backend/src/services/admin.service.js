@@ -157,11 +157,104 @@ async function createCategory(payload) {
   }
 }
 
+function toNumber(value) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : 0;
+}
+
+async function getOverviewReport() {
+  const [
+    [userRowSet],
+    [courseRowSet],
+    [enrollmentRowSet],
+    [certificateRowSet],
+    [assessmentRowSet]
+  ] = await Promise.all([
+    pool.query(
+      `SELECT
+        COUNT(*) AS total,
+        SUM(role = 'admin') AS admins,
+        SUM(role = 'instructor') AS instructors,
+        SUM(role = 'student') AS students,
+        SUM(is_active = 1) AS active
+       FROM users`
+    ),
+    pool.query(
+      `SELECT
+        COUNT(*) AS total,
+        SUM(status = 'draft') AS draft,
+        SUM(status = 'published') AS published,
+        SUM(status = 'archived') AS archived,
+        SUM(course_mode = 'certificate') AS certificate,
+        SUM(course_mode = 'instructor_led') AS instructor_led
+       FROM courses`
+    ),
+    pool.query(
+      `SELECT
+        COUNT(*) AS total,
+        SUM(status = 'active') AS active,
+        SUM(status = 'completed') AS completed,
+        SUM(status = 'dropped') AS dropped
+       FROM enrollments`
+    ),
+    pool.query(
+      `SELECT COUNT(*) AS total
+       FROM certificates`
+    ),
+    pool.query(
+      `SELECT
+        COUNT(*) AS total,
+        SUM(assessment_type = 'chapter_quiz') AS chapter_quiz,
+        SUM(assessment_type = 'final_exam') AS final_exam
+       FROM assessments`
+    )
+  ]);
+
+  const userRow = userRowSet[0] || {};
+  const courseRow = courseRowSet[0] || {};
+  const enrollmentRow = enrollmentRowSet[0] || {};
+  const certificateRow = certificateRowSet[0] || {};
+  const assessmentRow = assessmentRowSet[0] || {};
+
+  return {
+    users: {
+      total: toNumber(userRow.total),
+      active: toNumber(userRow.active),
+      admins: toNumber(userRow.admins),
+      instructors: toNumber(userRow.instructors),
+      students: toNumber(userRow.students)
+    },
+    courses: {
+      total: toNumber(courseRow.total),
+      draft: toNumber(courseRow.draft),
+      published: toNumber(courseRow.published),
+      archived: toNumber(courseRow.archived),
+      certificate: toNumber(courseRow.certificate),
+      instructor_led: toNumber(courseRow.instructor_led)
+    },
+    enrollments: {
+      total: toNumber(enrollmentRow.total),
+      active: toNumber(enrollmentRow.active),
+      completed: toNumber(enrollmentRow.completed),
+      dropped: toNumber(enrollmentRow.dropped)
+    },
+    certificates: {
+      total: toNumber(certificateRow.total)
+    },
+    assessments: {
+      total: toNumber(assessmentRow.total),
+      chapter_quiz: toNumber(assessmentRow.chapter_quiz),
+      final_exam: toNumber(assessmentRow.final_exam)
+    }
+  };
+}
+
 module.exports = {
   listUsers,
   updateUserActiveStatus,
   listCourses,
   updateCourseStatus,
   listCategories,
-  createCategory
+  createCategory,
+  getOverviewReport
 };

@@ -75,11 +75,21 @@ async function createCategory(req, res, next) {
   }
 }
 
+async function getOverviewReport(req, res, next) {
+  try {
+    const report = await adminService.getOverviewReport();
+    return res.json(success('Admin overview report fetched successfully', report));
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   listUsers,
   updateUserActiveStatus,
   listCourses,
   updateCourseStatus,
   listCategories,
-  createCategory
+  createCategory,
+  getOverviewReport
 };

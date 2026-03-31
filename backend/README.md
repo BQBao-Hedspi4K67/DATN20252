@@ -90,6 +90,7 @@ npm run db:seed:all
 - PATCH /api/admin/courses/:courseId/status -> update course status (admin)
 - GET /api/admin/categories -> list categories (admin)
 - POST /api/admin/categories -> create category (admin)
+- GET /api/admin/reports/overview -> admin dashboard aggregate metrics (admin)
 
 ## 6) Run Tests
 
