@@ -9,6 +9,8 @@ import CertificatesPage from './pages/CertificatesPage';
 import AssessmentPage from './pages/AssessmentPage';
 import InstructorStudioPage from './pages/InstructorStudioPage';
 import AdminConsolePage from './pages/AdminConsolePage';
+import LearningPlayerPage from './pages/LearningPlayerPage';
+import CertificateVerifyPage from './pages/CertificateVerifyPage';
 
 export default function App() {
   return (
@@ -28,9 +30,14 @@ export default function App() {
           element={<ProtectedRoute roles={['student']}><CertificatesPage /></ProtectedRoute>}
         />
         <Route
+          path="/student/learn/:slug"
+          element={<ProtectedRoute roles={['student']}><LearningPlayerPage /></ProtectedRoute>}
+        />
+        <Route
           path="/student/assessments/:assessmentId"
           element={<ProtectedRoute roles={['student']}><AssessmentPage /></ProtectedRoute>}
         />
+        <Route path="/verify" element={<CertificateVerifyPage />} />
 
         <Route
           path="/instructor/studio"

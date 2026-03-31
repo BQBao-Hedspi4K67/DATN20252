@@ -53,6 +53,7 @@ export default function CourseDetailPage() {
             <button type="button" className="btn-primary" onClick={onEnroll} disabled={enrollLoading}>
               {enrollLoading ? 'Enrolling...' : 'Enroll Now'}
             </button>
+            <Link to={`/student/learn/${course.slug}`} className="btn-primary">Open Learning Player</Link>
             <Link to="/student/learning" className="btn-ghost">Go to My Learning</Link>
           </div>
           {message && <p className="inline-note">{message}</p>}

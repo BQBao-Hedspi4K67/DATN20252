@@ -76,6 +76,19 @@ async function findCourseBySlug(slug) {
 
   const chapterIds = chapterRows.map((item) => item.id);
   let lessonRows = [];
+  const [assessmentRows] = await pool.query(
+    `SELECT
+      id,
+      chapter_id,
+      title,
+      assessment_type,
+      pass_score
+     FROM assessments
+     WHERE course_id = ?
+       AND is_published = 1
+     ORDER BY created_at ASC`,
+    [course.id]
+  );
 
   if (chapterIds.length > 0) {
     const [rows] = await pool.query(
@@ -100,12 +113,20 @@ async function findCourseBySlug(slug) {
 
   const chapters = chapterRows.map((chapter) => ({
     ...chapter,
-    lessons: lessonRows.filter((lesson) => lesson.chapter_id === chapter.id)
+    lessons: lessonRows.filter((lesson) => lesson.chapter_id === chapter.id),
+    chapterQuiz: assessmentRows.find(
+      (assessment) =>
+        assessment.assessment_type === 'chapter_quiz'
+        && Number(assessment.chapter_id) === Number(chapter.id)
+    ) || null
   }));
+
+  const finalExam = assessmentRows.find((assessment) => assessment.assessment_type === 'final_exam') || null;
 
   return {
     ...course,
-    chapters
+    chapters,
+    finalExam
   };
 }
 

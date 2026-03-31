@@ -35,7 +35,7 @@ export default function MyLearningPage() {
                 <div style={{ width: `${item.progress_percent}%` }} />
               </div>
               <span>{item.progress_percent}% completed</span>
-              <Link to={`/courses/${item.course_slug}`} className="btn-ghost">View Course</Link>
+              <Link to={`/student/learn/${item.course_slug}`} className="btn-primary">Continue Learning</Link>
             </article>
           ))}
         </div>
