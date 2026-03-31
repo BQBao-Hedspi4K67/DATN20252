@@ -492,6 +492,43 @@ a {
   background: #fff;
 }
 
+.attempt-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 0.6rem;
+  margin-bottom: 0.7rem;
+}
+
+.attempt-chip {
+  border: 1px solid #d8e7df;
+  border-radius: 10px;
+  padding: 0.55rem;
+  background: #f8fcfa;
+}
+
+.attempt-chip span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.attempt-filters {
+  display: flex;
+  gap: 0.55rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.55rem;
+}
+
+.attempt-filters .btn-ghost {
+  padding: 0.4rem 0.8rem;
+}
+
+.attempt-filters .filter-active {
+  background: #e9f6f3;
+  border-color: #8dc8bf;
+  color: #0c5d56;
+}
+
 .attempt-list ul {
   list-style: none;
   padding: 0;
