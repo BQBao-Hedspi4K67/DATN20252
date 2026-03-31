@@ -41,6 +41,11 @@ Build the graduation LMS in modules with an MVP-first path centered on learning 
 - Add frontend integration checks for protected routes, learning flow transitions, and retry behavior.
 - Prepare multi-seed execution scripts for examiners (load base only, or base + scenario packs) to demo different flows quickly.
 
+**Progress Log**
+- Completed through Phase 6 end-to-end (student/instructor/admin core flows, completion and certificate verification).
+- Phase 7 in progress: added backend API controller contract tests for auth, enrollment, progress heartbeat validation, assessment submission envelope, and certificate verification/error propagation (`backend/test/controllerContracts.test.js`).
+- Remaining in Phase 7: deeper frontend integration checks and broader role-boundary regression scenarios.
+
 **Relevant files**
 - d:/DATN20252/docs/02-product-requirements.md — source of functional scope and role expectations.
 - d:/DATN20252/docs/03-database-rules.md — base schema conventions to extend with final exam entities.
