@@ -6,7 +6,10 @@
   "scripts": {
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
-    "test": "node --test"
+    "test": "node --test",
+    "db:init": "node db/scripts/seedRunner.js db:init",
+    "db:seed:base": "node db/scripts/seedRunner.js seed:base",
+    "db:seed:all": "node db/scripts/seedRunner.js seed:all"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

@@ -46,6 +46,14 @@ SOURCE db/seeds/02_instructor_led_seed.sql;
 SOURCE db/seeds/03_assessment_heavy_seed.sql;
 ```
 
+## 3.1) Quick DB Scripts (Node)
+
+```bash
+npm run db:init
+npm run db:seed:base
+npm run db:seed:all
+```
+
 ## 4) Seed Account
 
 - Email: admin@lms.local
@@ -74,6 +82,12 @@ SOURCE db/seeds/03_assessment_heavy_seed.sql;
 - POST /api/instructor/courses/:courseId/chapters -> create chapter for course
 - POST /api/instructor/chapters/:chapterId/lessons -> create lesson with URL-based assets
 - POST /api/instructor/courses/:courseId/publish -> publish with structure validation
+- GET /api/admin/users -> list users (admin)
+- PATCH /api/admin/users/:userId/active -> activate/deactivate user (admin)
+- GET /api/admin/courses -> list courses with filters (admin)
+- PATCH /api/admin/courses/:courseId/status -> update course status (admin)
+- GET /api/admin/categories -> list categories (admin)
+- POST /api/admin/categories -> create category (admin)
 
 ## 6) Run Tests
 
