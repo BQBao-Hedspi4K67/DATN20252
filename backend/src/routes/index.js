@@ -5,6 +5,7 @@ const coursesRoutes = require('./courses.routes');
 const enrollmentsRoutes = require('./enrollments.routes');
 const progressRoutes = require('./progress.routes');
 const assessmentsRoutes = require('./assessments.routes');
+const certificatesRoutes = require('./certificates.routes');
 
 const router = express.Router();
 
@@ -14,5 +15,6 @@ router.use('/courses', coursesRoutes);
 router.use('/enrollments', enrollmentsRoutes);
 router.use('/progress', progressRoutes);
 router.use('/assessments', assessmentsRoutes);
+router.use('/certificates', certificatesRoutes);
 
 module.exports = router;

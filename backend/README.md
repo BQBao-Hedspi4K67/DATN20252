@@ -66,6 +66,8 @@ SOURCE db/seeds/03_assessment_heavy_seed.sql;
 - GET /api/assessments/:assessmentId -> get quiz/final payload for student
 - POST /api/assessments/:assessmentId/submit -> submit answers and receive score/pass result
 - POST /api/assessments -> create assessment with questions/options (instructor/admin)
+- GET /api/certificates/me -> list my issued certificates (student)
+- GET /api/certificates/verify/:code -> public certificate verification endpoint
 
 ## 6) Run Tests
 

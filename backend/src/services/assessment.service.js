@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const AppError = require('../utils/appError');
 const { scoreAssessment } = require('../utils/assessmentRules');
+const completionService = require('./completion.service');
 
 async function getAssessmentById(assessmentId) {
   const [rows] = await pool.query(
@@ -179,13 +180,16 @@ async function submitAssessment(studentId, assessmentId, submittedAnswers) {
 
     await conn.commit();
 
+    const completion = await completionService.syncEnrollmentCompletion(enrollment.id);
+
     return {
       attemptId: attemptResult.insertId,
       score: evaluated.score,
       passScore: Number(assessment.pass_score),
       isPassed,
       correctCount: evaluated.correctCount,
-      totalQuestions: evaluated.totalQuestions
+      totalQuestions: evaluated.totalQuestions,
+      completion
     };
   } catch (error) {
     await conn.rollback();

@@ -1,6 +1,7 @@
 const pool = require('../config/db');
 const { computeProgressPercent, shouldMarkLessonCompleted } = require('../utils/progressRules');
 const AppError = require('../utils/appError');
+const completionService = require('./completion.service');
 
 async function enrollToCourse(studentId, courseId) {
   const [existingRows] = await pool.query(
@@ -115,20 +116,16 @@ async function refreshEnrollmentProgress(enrollmentId) {
   const totalLessons = Number(summary.total_lessons || 0);
   const completedLessons = Number(summary.completed_lessons || 0);
   const nextProgress = computeProgressPercent(totalLessons, completedLessons);
-  const nextStatus = nextProgress >= 100 ? 'completed' : 'active';
-
   await pool.query(
     `UPDATE enrollments
-     SET progress_percent = ?,
-         status = ?,
-         completed_at = CASE WHEN ? = 'completed' THEN CURRENT_TIMESTAMP ELSE NULL END
+     SET progress_percent = ?
      WHERE id = ?`,
-    [nextProgress, nextStatus, nextStatus, enrollmentId]
+    [nextProgress, enrollmentId]
   );
 
   return {
     progressPercent: nextProgress,
-    status: nextStatus
+    status: 'active'
   };
 }
 
@@ -165,13 +162,15 @@ async function addLessonHeartbeat(studentId, lessonId, heartbeatSecond, lastPosi
   );
 
   const enrollment = await refreshEnrollmentProgress(joined.enrollment_id);
+  const completion = await completionService.syncEnrollmentCompletion(joined.enrollment_id);
 
   return {
     lessonId,
     readSeconds: nextReadSeconds,
     lastPosition: nextPosition,
     status: completed ? 'completed' : 'in_progress',
-    enrollment
+    enrollment,
+    completion
   };
 }
 
@@ -206,11 +205,13 @@ async function completeLesson(studentId, lessonId, lastPosition = 100) {
   );
 
   const enrollment = await refreshEnrollmentProgress(joined.enrollment_id);
+  const completion = await completionService.syncEnrollmentCompletion(joined.enrollment_id);
 
   return {
     lessonId,
     status: 'completed',
-    enrollment
+    enrollment,
+    completion
   };
 }
 
