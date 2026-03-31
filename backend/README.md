@@ -68,6 +68,12 @@ SOURCE db/seeds/03_assessment_heavy_seed.sql;
 - POST /api/assessments -> create assessment with questions/options (instructor/admin)
 - GET /api/certificates/me -> list my issued certificates (student)
 - GET /api/certificates/verify/:code -> public certificate verification endpoint
+- GET /api/instructor/courses -> list owned courses (instructor/admin)
+- POST /api/instructor/courses -> create draft course
+- PATCH /api/instructor/courses/:courseId -> update course metadata
+- POST /api/instructor/courses/:courseId/chapters -> create chapter for course
+- POST /api/instructor/chapters/:chapterId/lessons -> create lesson with URL-based assets
+- POST /api/instructor/courses/:courseId/publish -> publish with structure validation
 
 ## 6) Run Tests
 
