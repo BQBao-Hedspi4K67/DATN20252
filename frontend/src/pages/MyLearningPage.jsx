@@ -5,6 +5,28 @@ import { api, unwrapApiData } from '../lib/api';
 export default function MyLearningPage() {
   const [items, setItems] = useState([]);
 
+  const actionLink = (item) => {
+    const next = item.next_action;
+    if (!next || next.kind === 'completed') {
+      return {
+        to: `/courses/${item.course_slug}`,
+        label: 'View Course'
+      };
+    }
+
+    if (next.kind === 'lesson') {
+      return {
+        to: `/student/learn/${item.course_slug}?lessonId=${next.lessonId}`,
+        label: 'Continue Lesson'
+      };
+    }
+
+    return {
+      to: `/student/assessments/${next.assessmentId}`,
+      label: next.kind === 'final_exam' ? 'Take Final Exam' : 'Take Chapter Quiz'
+    };
+  };
+
   useEffect(() => {
     let mounted = true;
     (async () => {
@@ -35,7 +57,7 @@ export default function MyLearningPage() {
                 <div style={{ width: `${item.progress_percent}%` }} />
               </div>
               <span>{item.progress_percent}% completed</span>
-              <Link to={`/student/learn/${item.course_slug}`} className="btn-primary">Continue Learning</Link>
+              <Link to={actionLink(item).to} className="btn-primary">{actionLink(item).label}</Link>
             </article>
           ))}
         </div>

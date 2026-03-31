@@ -2,6 +2,7 @@ const pool = require('../config/db');
 const { computeProgressPercent, shouldMarkLessonCompleted } = require('../utils/progressRules');
 const AppError = require('../utils/appError');
 const completionService = require('./completion.service');
+const { determineNextLearningAction } = require('../utils/nextLearningAction');
 
 async function enrollToCourse(studentId, courseId) {
   const [existingRows] = await pool.query(
@@ -49,7 +50,74 @@ async function getMyEnrollments(studentId) {
     [studentId]
   );
 
-  return rows;
+  const enriched = await Promise.all(
+    rows.map(async (row) => {
+      const [lessonRows] = await pool.query(
+        `SELECT
+          ch.id AS chapter_id,
+          ch.position AS chapter_position,
+          ls.id AS lesson_id,
+          ls.title AS lesson_title,
+          ls.position AS lesson_position
+         FROM chapters ch
+         INNER JOIN lessons ls ON ls.chapter_id = ch.id
+         WHERE ch.course_id = ?
+         ORDER BY ch.position ASC, ls.position ASC`,
+        [row.course_id]
+      );
+
+      const [assessmentRows] = await pool.query(
+        `SELECT
+          a.id AS assessment_id,
+          a.chapter_id,
+          a.title AS assessment_title,
+          a.assessment_type,
+          ch.position AS chapter_position
+         FROM assessments a
+         LEFT JOIN chapters ch ON ch.id = a.chapter_id
+         WHERE a.course_id = ?
+           AND a.is_published = 1
+         ORDER BY
+           CASE WHEN a.assessment_type = 'chapter_quiz' THEN 0 ELSE 1 END,
+           ch.position ASC,
+           a.id ASC`,
+        [row.course_id]
+      );
+
+      const [lessonProgressRows] = await pool.query(
+        `SELECT lesson_id
+         FROM lesson_progress
+         WHERE enrollment_id = ?
+           AND status = 'completed'`,
+        [row.id]
+      );
+
+      const [assessmentAttemptRows] = await pool.query(
+        `SELECT assessment_id
+         FROM assessment_attempts
+         WHERE enrollment_id = ?
+           AND is_passed = 1`,
+        [row.id]
+      );
+
+      const completedLessonIds = new Set(lessonProgressRows.map((item) => Number(item.lesson_id)));
+      const passedAssessmentIds = new Set(assessmentAttemptRows.map((item) => Number(item.assessment_id)));
+
+      const nextAction = determineNextLearningAction({
+        orderedLessons: lessonRows,
+        orderedAssessments: assessmentRows,
+        completedLessonIds,
+        passedAssessmentIds
+      });
+
+      return {
+        ...row,
+        next_action: nextAction
+      };
+    })
+  );
+
+  return enriched;
 }
 
 async function getCourseLessonProgress(studentId, courseSlug) {
