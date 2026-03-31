@@ -45,7 +45,8 @@ Build the graduation LMS in modules with an MVP-first path centered on learning 
 - Completed through Phase 6 end-to-end (student/instructor/admin core flows, completion and certificate verification).
 - Phase 7 in progress: added backend API controller contract tests for auth, enrollment, progress heartbeat validation, assessment submission envelope, and certificate verification/error propagation (`backend/test/controllerContracts.test.js`).
 - Phase 7 update: added frontend route-guard integration checks with Vitest + Testing Library for guest/student/instructor access transitions (`frontend/src/__tests__/routeGuards.test.jsx`).
-- Remaining in Phase 7: broader role-boundary regression scenarios (more protected APIs and mixed-role edge cases).
+- Phase 7 update: added backend role-boundary middleware regression tests for bearer auth and role guard behavior (`backend/test/authMiddlewares.test.js`).
+- Remaining in Phase 7: optional expansion for mixed-role edge cases on selected protected API endpoints.
 
 **Relevant files**
 - d:/DATN20252/docs/02-product-requirements.md — source of functional scope and role expectations.
