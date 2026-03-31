@@ -107,6 +107,35 @@ async function getAssessmentForStudent(studentId, assessmentId) {
   };
 }
 
+async function getAssessmentAttempts(studentId, assessmentId) {
+  const assessment = await getAssessmentById(assessmentId);
+  if (!assessment || Number(assessment.is_published) !== 1) {
+    throw new AppError('Assessment not found', 404, 'ASSESSMENT_NOT_FOUND');
+  }
+
+  const enrollment = await getEnrollmentForAssessment(studentId, assessment);
+  if (!enrollment) {
+    throw new AppError('You are not enrolled in this course', 403, 'ASSESSMENT_ENROLLMENT_REQUIRED');
+  }
+
+  const [rows] = await pool.query(
+    `SELECT id, score, is_passed, started_at, submitted_at
+     FROM assessment_attempts
+     WHERE enrollment_id = ?
+       AND assessment_id = ?
+     ORDER BY submitted_at DESC, id DESC`,
+    [enrollment.id, assessment.id]
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    score: Number(row.score),
+    isPassed: Number(row.is_passed) === 1,
+    startedAt: row.started_at,
+    submittedAt: row.submitted_at
+  }));
+}
+
 async function submitAssessment(studentId, assessmentId, submittedAnswers) {
   if (!Array.isArray(submittedAnswers) || submittedAnswers.length === 0) {
     throw new AppError('answers is required and must be non-empty', 400, 'ASSESSMENT_EMPTY_ANSWERS');
@@ -303,6 +332,7 @@ async function createAssessment(authorUser, payload) {
 
 module.exports = {
   getAssessmentForStudent,
+  getAssessmentAttempts,
   submitAssessment,
   createAssessment
 };

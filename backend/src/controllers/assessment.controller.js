@@ -41,6 +41,26 @@ async function submitAssessment(req, res, next) {
   }
 }
 
+async function getAssessmentAttempts(req, res, next) {
+  try {
+    const studentId = req.user.id;
+    const assessmentId = Number(req.params.assessmentId);
+
+    if (!Number.isFinite(assessmentId) || assessmentId <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid assessmentId',
+        data: null
+      });
+    }
+
+    const data = await assessmentService.getAssessmentAttempts(studentId, assessmentId);
+    return res.json(success('Assessment attempts fetched successfully', data));
+  } catch (error) {
+    return next(error);
+  }
+}
+
 async function createAssessment(req, res, next) {
   try {
     const data = await assessmentService.createAssessment(req.user, req.body);
@@ -52,6 +72,7 @@ async function createAssessment(req, res, next) {
 
 module.exports = {
   getAssessmentForStudent,
+  getAssessmentAttempts,
   submitAssessment,
   createAssessment
 };

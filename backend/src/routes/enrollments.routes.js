@@ -10,5 +10,6 @@ router.use(authorizeRoles('student'));
 
 router.post('/', enrollmentController.enrollCourse);
 router.get('/me', enrollmentController.myEnrollments);
+router.get('/me/course/:slug/progress', enrollmentController.myCourseLessonProgress);
 
 module.exports = router;

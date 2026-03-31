@@ -7,13 +7,18 @@ export default function AssessmentPage() {
   const [assessment, setAssessment] = useState(null);
   const [answers, setAnswers] = useState({});
   const [result, setResult] = useState(null);
+  const [attempts, setAttempts] = useState([]);
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const response = await api.get(`/assessments/${assessmentId}`);
+      const [response, attemptsRes] = await Promise.all([
+        api.get(`/assessments/${assessmentId}`),
+        api.get(`/assessments/${assessmentId}/attempts`)
+      ]);
       if (mounted) {
         setAssessment(unwrapApiData(response));
+        setAttempts(unwrapApiData(attemptsRes) || []);
       }
     })();
 
@@ -32,6 +37,9 @@ export default function AssessmentPage() {
 
     const response = await api.post(`/assessments/${assessmentId}/submit`, payload);
     setResult(unwrapApiData(response));
+
+    const attemptsRes = await api.get(`/assessments/${assessmentId}/attempts`);
+    setAttempts(unwrapApiData(attemptsRes) || []);
   };
 
   if (!assessment) {
@@ -67,6 +75,21 @@ export default function AssessmentPage() {
           <div className="result-box">
             <p>Score: {result.score}%</p>
             <p>Result: {result.isPassed ? 'Passed' : 'Not passed'}</p>
+          </div>
+        )}
+
+        {attempts.length > 0 && (
+          <div className="attempt-list">
+            <h3>Attempt History</h3>
+            <ul>
+              {attempts.map((attempt) => (
+                <li key={attempt.id}>
+                  <span>Attempt #{attempt.id}</span>
+                  <strong>{attempt.score}%</strong>
+                  <em>{attempt.isPassed ? 'Passed' : 'Not passed'}</em>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
       </section>

@@ -8,6 +8,7 @@ const router = express.Router();
 router.use(authenticate);
 
 router.get('/:assessmentId', authorizeRoles('student'), assessmentController.getAssessmentForStudent);
+router.get('/:assessmentId/attempts', authorizeRoles('student'), assessmentController.getAssessmentAttempts);
 router.post('/:assessmentId/submit', authorizeRoles('student'), assessmentController.submitAssessment);
 router.post('/', authorizeRoles('instructor', 'admin'), assessmentController.createAssessment);
 

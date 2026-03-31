@@ -69,9 +69,11 @@ npm run db:seed:all
 - GET /api/courses/:slug -> course detail with chapters and lessons
 - POST /api/enrollments -> enroll to course (student only, Bearer token)
 - GET /api/enrollments/me -> list my enrollments (student only, Bearer token)
+- GET /api/enrollments/me/course/:slug/progress -> lesson progress by course slug (student)
 - POST /api/progress/lessons/:lessonId/heartbeat -> update reading/video progress
 - POST /api/progress/lessons/:lessonId/complete -> mark lesson complete with validation
 - GET /api/assessments/:assessmentId -> get quiz/final payload for student
+- GET /api/assessments/:assessmentId/attempts -> get attempt history for assessment
 - POST /api/assessments/:assessmentId/submit -> submit answers and receive score/pass result
 - POST /api/assessments -> create assessment with questions/options (instructor/admin)
 - GET /api/certificates/me -> list my issued certificates (student)

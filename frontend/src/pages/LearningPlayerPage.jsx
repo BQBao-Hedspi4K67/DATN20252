@@ -55,6 +55,7 @@ export default function LearningPlayerPage() {
   const [params, setParams] = useSearchParams();
   const [course, setCourse] = useState(null);
   const [enrollments, setEnrollments] = useState([]);
+  const [lessonProgress, setLessonProgress] = useState([]);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [statusMessage, setStatusMessage] = useState('');
 
@@ -72,6 +73,14 @@ export default function LearningPlayerPage() {
 
       setCourse(unwrapApiData(courseRes));
       setEnrollments(unwrapApiData(enrollmentRes) || []);
+
+      try {
+        const progressRes = await api.get(`/enrollments/me/course/${slug}/progress`);
+        const progressData = unwrapApiData(progressRes);
+        setLessonProgress(progressData?.lessons || []);
+      } catch (_error) {
+        setLessonProgress([]);
+      }
     })();
 
     return () => {
@@ -122,8 +131,42 @@ export default function LearningPlayerPage() {
   }, [selectedLesson]);
 
   const selectLesson = (lessonId) => {
-    params.set('lessonId', lessonId);
-    setParams(params);
+    const next = new URLSearchParams(params);
+    next.set('lessonId', lessonId);
+    setParams(next);
+  };
+
+  const completedLessonIds = useMemo(() => {
+    return new Set(
+      lessonProgress
+        .filter((item) => item.progress_status === 'completed')
+        .map((item) => Number(item.lesson_id))
+    );
+  }, [lessonProgress]);
+
+  const moveToNextLesson = () => {
+    if (!selectedLesson) {
+      return;
+    }
+    const currentIndex = allLessons.findIndex((item) => Number(item.id) === Number(selectedLesson.id));
+    if (currentIndex < 0 || currentIndex === allLessons.length - 1) {
+      return;
+    }
+    selectLesson(allLessons[currentIndex + 1].id);
+  };
+
+  const reloadProgress = async () => {
+    try {
+      const [enrollmentRes, progressRes] = await Promise.all([
+        api.get('/enrollments/me'),
+        api.get(`/enrollments/me/course/${slug}/progress`)
+      ]);
+      setEnrollments(unwrapApiData(enrollmentRes) || []);
+      const progressData = unwrapApiData(progressRes);
+      setLessonProgress(progressData?.lessons || []);
+    } catch (_error) {
+      // keep current state when fetch fails
+    }
   };
 
   const completeLesson = async () => {
@@ -134,6 +177,8 @@ export default function LearningPlayerPage() {
     try {
       await api.post(`/progress/lessons/${selectedLesson.id}/complete`, { lastPosition: 100 });
       setStatusMessage('Lesson marked as completed successfully.');
+      await reloadProgress();
+      moveToNextLesson();
     } catch (error) {
       setStatusMessage(error?.response?.data?.message || 'Could not complete lesson yet.');
     }
@@ -163,6 +208,7 @@ export default function LearningPlayerPage() {
                     onClick={() => selectLesson(lesson.id)}
                   >
                     {lesson.position}. {lesson.title}
+                    {completedLessonIds.has(Number(lesson.id)) ? ' (done)' : ''}
                   </button>
                 </li>
               ))}

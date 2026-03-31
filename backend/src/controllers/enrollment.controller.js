@@ -41,7 +41,19 @@ async function myEnrollments(req, res, next) {
   }
 }
 
+async function myCourseLessonProgress(req, res, next) {
+  try {
+    const studentId = req.user.id;
+    const courseSlug = req.params.slug;
+    const data = await enrollmentService.getCourseLessonProgress(studentId, courseSlug);
+    return res.json(success('Course lesson progress fetched successfully', data));
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
   enrollCourse,
-  myEnrollments
+  myEnrollments,
+  myCourseLessonProgress
 };

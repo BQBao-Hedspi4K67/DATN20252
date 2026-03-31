@@ -472,6 +472,31 @@ a {
   padding: 0.8rem;
 }
 
+.attempt-list {
+  margin-top: 1rem;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0.8rem;
+  background: #fff;
+}
+
+.attempt-list ul {
+  list-style: none;
+  padding: 0;
+  margin: 0.4rem 0 0;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.attempt-list li {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 0.6rem;
+  padding: 0.45rem;
+  border: 1px solid #e6efe9;
+  border-radius: 8px;
+}
+
 .inline-form {
   display: grid;
   gap: 0.6rem;

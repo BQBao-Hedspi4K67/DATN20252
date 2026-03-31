@@ -52,6 +52,57 @@ async function getMyEnrollments(studentId) {
   return rows;
 }
 
+async function getCourseLessonProgress(studentId, courseSlug) {
+  const [enrollmentRows] = await pool.query(
+    `SELECT
+      e.id AS enrollment_id,
+      e.progress_percent,
+      e.status,
+      c.id AS course_id,
+      c.title AS course_title,
+      c.slug AS course_slug
+     FROM enrollments e
+     INNER JOIN courses c ON c.id = e.course_id
+     WHERE e.student_id = ? AND c.slug = ?
+     LIMIT 1`,
+    [studentId, courseSlug]
+  );
+
+  const enrollment = enrollmentRows[0] || null;
+  if (!enrollment) {
+    throw new AppError('Enrollment not found for course', 404, 'ENROLLMENT_NOT_FOUND');
+  }
+
+  const [rows] = await pool.query(
+    `SELECT
+      ch.id AS chapter_id,
+      ch.title AS chapter_title,
+      ch.position AS chapter_position,
+      ls.id AS lesson_id,
+      ls.title AS lesson_title,
+      ls.position AS lesson_position,
+      ls.lesson_type,
+      ls.min_read_seconds,
+      COALESCE(lp.status, 'not_started') AS progress_status,
+      COALESCE(lp.read_seconds, 0) AS read_seconds,
+      COALESCE(lp.last_position, 0) AS last_position,
+      lp.completed_at
+     FROM chapters ch
+     INNER JOIN lessons ls ON ls.chapter_id = ch.id
+     LEFT JOIN lesson_progress lp
+       ON lp.lesson_id = ls.id
+      AND lp.enrollment_id = ?
+     WHERE ch.course_id = ?
+     ORDER BY ch.position ASC, ls.position ASC`,
+    [enrollment.enrollment_id, enrollment.course_id]
+  );
+
+  return {
+    enrollment,
+    lessons: rows
+  };
+}
+
 async function findLessonWithEnrollment(studentId, lessonId) {
   const [rows] = await pool.query(
     `SELECT
@@ -218,6 +269,7 @@ async function completeLesson(studentId, lessonId, lastPosition = 100) {
 module.exports = {
   enrollToCourse,
   getMyEnrollments,
+  getCourseLessonProgress,
   addLessonHeartbeat,
   completeLesson
 };
