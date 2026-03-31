@@ -56,8 +56,24 @@ SOURCE db/seeds/03_assessment_heavy_seed.sql;
 - GET / -> basic API info
 - GET /api/health -> API + DB health check
 - POST /api/auth/login -> seeded user login
+- GET /api/auth/me -> current profile (Bearer token)
+- GET /api/courses -> list published courses (supports query: courseMode, keyword)
+- GET /api/courses/:slug -> course detail with chapters and lessons
+- POST /api/enrollments -> enroll to course (student only, Bearer token)
+- GET /api/enrollments/me -> list my enrollments (student only, Bearer token)
+- POST /api/progress/lessons/:lessonId/heartbeat -> update reading/video progress
+- POST /api/progress/lessons/:lessonId/complete -> mark lesson complete with validation
+- GET /api/assessments/:assessmentId -> get quiz/final payload for student
+- POST /api/assessments/:assessmentId/submit -> submit answers and receive score/pass result
+- POST /api/assessments -> create assessment with questions/options (instructor/admin)
 
-## 6) Notes
+## 6) Run Tests
+
+```bash
+npm test
+```
+
+## 7) Notes
 
 - Lesson media assets (video/image/pdf/doc) are persisted as URLs in DB fields.
 - DB is seeded using multiple scenario packs with meaningful linked data.

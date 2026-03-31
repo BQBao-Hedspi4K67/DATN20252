@@ -60,6 +60,34 @@ async function login(req, res, next) {
   }
 }
 
+async function me(req, res, next) {
+  try {
+    const user = await authService.findUserById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: 'User not found',
+        data: null
+      });
+    }
+
+    return res.json(
+      success('Profile fetched successfully', {
+        id: user.id,
+        fullName: user.full_name,
+        email: user.email,
+        role: user.role,
+        isActive: Boolean(user.is_active),
+        createdAt: user.created_at
+      })
+    );
+  } catch (error) {
+    return next(error);
+  }
+}
+
 module.exports = {
-  login
+  login,
+  me
 };
